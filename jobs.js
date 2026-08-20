@@ -10,8 +10,7 @@ let jobs = {
     clipsNeeded: 5,
     bids: [],
     status: 'open',
-    createdAt: new Date(),
-    creatorId: 'creator1'
+    createdAt: new Date()
   },
   'job2': {
     id: 'job2',
@@ -21,8 +20,7 @@ let jobs = {
     clipsNeeded: 10,
     bids: [],
     status: 'open',
-    createdAt: new Date(),
-    creatorId: 'creator1'
+    createdAt: new Date()
   },
   'job3': {
     id: 'job3',
@@ -32,82 +30,31 @@ let jobs = {
     clipsNeeded: 8,
     bids: [],
     status: 'open',
-    createdAt: new Date(),
-    creatorId: 'creator1'
+    createdAt: new Date()
   }
 };
 
 router.get('/open', (req, res) => {
-  const openJobs = Object.values(jobs).filter(job => job.status === 'open');
-  res.json(openJobs);
+  res.json(Object.values(jobs));
 });
 
 router.get('/:jobId', (req, res) => {
   const job = jobs[req.params.jobId];
-  if (!job) {
-    return res.status(404).json({ error: 'Job not found' });
-  }
+  if (!job) return res.status(404).json({ error: 'Not found' });
   res.json(job);
 });
 
 router.post('/:jobId/bid', (req, res) => {
   const job = jobs[req.params.jobId];
-  if (!job) {
-    return res.status(404).json({ error: 'Job not found' });
-  }
-
-  const bid = {
-    id: Date.now().toString(),
-    clipperId: req.body?.clipperId,
-    clipperName: req.body?.clipperName,
-    bidAmount: req.body?.bidAmount,
-    status: 'pending',
-    createdAt: new Date()
-  };
-
-  job.bids.push(bid);
-  res.json({ success: true, message: 'Bid placed', bidId: bid.id });
-});
-
-router.post('/:jobId/payment', (req, res) => {
-  const job = jobs[req.params.jobId];
-  if (!job) {
-    return res.status(404).json({ error: 'Job not found' });
-  }
-
-  res.json({
-    success: true,
-    message: 'Payment created',
-    paymentId: Date.now().toString(),
-    amount: req.body?.bidAmount,
-    currency: 'usd'
-  });
+  if (!job) return res.status(404).json({ error: 'Not found' });
+  job.bids.push({ id: Date.now(), clipperId: req.body.clipperId, bidAmount: req.body.bidAmount });
+  res.json({ success: true });
 });
 
 router.post('/create', (req, res) => {
-  const creatorId = req.body?.creatorId;
-  const title = req.body?.title;
-  const budget = req.body?.budget;
-
-  if (!creatorId || !title || !budget) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
   const jobId = 'job' + Date.now();
-  const newJob = {
-    id: jobId,
-    creatorId,
-    title,
-    description: req.body?.description || '',
-    budget,
-    clipsNeeded: req.body?.clipsNeeded || 5,
-    bids: [],
-    status: 'open',
-    createdAt: new Date()
-  };
-
-  jobs[jobId] = newJob;
-  res.json({ success: true, message: 'Job created', jobId });
+  jobs[jobId] = { id: jobId, ...req.body, bids: [], status: 'open', createdAt: new Date() };
+  res.json({ success: true, jobId });
 });
 
 module.exports = router;
