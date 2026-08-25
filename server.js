@@ -35,6 +35,21 @@ app.post('/api/jobs/create', (req, res) => {
 app.post('/api/jobs/:jobId/bid', (req, res) => {
   res.json({ success: true });
 });
+// Videos endpoint
+app.post('/api/videos/create', (req, res) => {
+  const uid = req.body?.uid;
+  const title = req.body?.title;
+  const videoUrl = req.body?.videoUrl;
 
+  if (!uid || !title || !videoUrl) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  res.json({ 
+    success: true, 
+    message: 'Video recorded', 
+    videoId: Date.now().toString() 
+  });
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server on ${PORT}`));
