@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -33,12 +32,21 @@ app.post('/api/jobs/:jobId/bid', (req, res) => {
 });
 
 // Videos
+let videos = {};
+
 app.post('/api/videos/create', (req, res) => {
   const { uid, title, videoUrl } = req.body;
   if (!uid || !title || !videoUrl) {
     return res.status(400).json({ error: 'Missing fields' });
   }
-  res.json({ success: true, videoId: Date.now().toString() });
+  const videoId = Date.now().toString();
+  videos[videoId] = { id: videoId, uid, title, videoUrl, createdAt: new Date().toISOString() };
+  res.json({ success: true, videoId });
+});
+
+app.get('/api/videos/user/:uid', (req, res) => {
+  const userVideos = Object.values(videos).filter(v => v.uid === req.params.uid);
+  res.json(userVideos);
 });
 
 const PORT = process.env.PORT || 3000;
